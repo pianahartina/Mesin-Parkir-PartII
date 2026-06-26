@@ -1,0 +1,63 @@
+from datetime import datetime
+import locale
+
+print("==== Mesin Parkir Part III ====")
+sekarang = datetime.now()
+print(f"{sekarang.strftime('%A, %d-%M-%Y %H:%M:%S')}")
+
+total_uang = 0
+total_jam = 0
+jumlah_motor = 0
+jumlah_mobil = 0
+uang_motor = 0
+uang_mobil = 0
+jam_motor = 0
+jam_mobil = 0
+
+with open("laporan_keuangan_parkir.txt", "r") as f:
+    for baris in f:
+        baris = baris.strip()
+        if not baris:
+            continue
+
+        # Pecah jadi 3 bagian: Jenis | Waktu | Data
+        bagian_utama = baris.split("|")
+        if len(bagian_utama) != 3:
+            print(f"Format baris tidak sesuai: {baris}")
+            continue
+
+        jenis_kendaraan = bagian_utama[0].strip() # "Motor" atau "Mobil"    
+        waktu = bagian_utama[1].strip()
+        data_motor = bagian_utama[2].strip()
+        bagian_detail = data_motor.split()
+        
+        jam_masuk = float(bagian_detail[1])
+        jam_keluar = float(bagian_detail[3])
+        tarif = int(bagian_detail[4].replace("Rp", ""))
+        
+        lama_parkir = jam_keluar - jam_masuk
+        total_uang += tarif
+        total_jam += lama_parkir
+
+        if jenis_kendaraan == "Motor":
+            jumlah_motor += 1
+            uang_motor += tarif
+            jam_motor += lama_parkir
+        else:
+            jumlah_mobil += 1
+            uang_mobil += tarif
+            jam_mobil += lama_parkir
+
+# Hitung rata-rata
+rata2_jam = total_jam / (jumlah_motor + jumlah_mobil) if (jumlah_motor + jumlah_mobil) > 0 else 0
+rata2_jam_motor = jam_motor / jumlah_motor if jumlah_motor > 0 else 0
+rata2_jam_mobil = jam_mobil / jumlah_mobil if jumlah_mobil > 0 else 0
+
+print("===DASHBOARD PARKIR HARI INI===")
+print(f"Total Motor: {jumlah_motor}")
+print(f"Total Mobil: {jumlah_mobil}")
+print(f"Total Pemasukan: Rp {total_uang:,}")
+print(f"Rata-rata Lama Parkir Motor: {rata2_jam_motor: .1f} jam")
+print(f"Rata-rata Lama Parkir Mobil: {rata2_jam_mobil: .1f} jam")
+
+
